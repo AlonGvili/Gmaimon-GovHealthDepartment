@@ -13,7 +13,8 @@
     "dev": "concurrently \"npm run dev:css\" \"remix dev\"",
     "postinstall": "remix setup node",
     "runfile": "node ./other/runfile.js",
-    "start": "remix-serve build"
+    "start": "remix-serve build",
+    "routes": "remix routes"
   },
   "dependencies": {
     "@headlessui/react": "^1.4.2",

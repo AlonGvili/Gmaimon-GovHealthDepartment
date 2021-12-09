@@ -18,6 +18,8 @@ import { HiChevronDown, HiChevronUp } from "react-icons/hi";
 import { TicketWithTask } from "./OrderBlade";
 import React from "react";
 import { useFetcher } from "remix";
+import { useModal } from "./modal";
+import { useDrawer } from "./drawer";
 
 const IndeterminateCheckbox = React.forwardRef<TicketWithTask>(
   ({ indeterminate, ...rest }, ref) => {
@@ -65,7 +67,8 @@ export default function Table<D>({
   ...props
 }: RemixTableProps<D>) {
   let fetcher = useFetcher();
-
+  const {onOpen} = useModal()
+  const {onOpen: onOpenDrawer} = useDrawer()
   const {
     getTableProps,
     getTableBodyProps,
@@ -110,12 +113,12 @@ export default function Table<D>({
 
   return (
     <>
-      <div className="w-full my-4  p-4 flex justify-between">
-        <button className="bg-brand hover:bg-green-900 text-white text-sm font-medium py-2 px-2 rounded-sm">
+      <div className="w-full my-4  py-4 flex justify-between">
+        <button onClick={() => onOpen()} className="bg-brand hover:bg-brand-dark  text-white text-sm font-medium py-2 px-2 rounded-sm">
           {translationFn("orders.new")}
         </button>
         <div className="grid gap-2 grid-flow-col">
-          <button className="bg-white text-gray-700 text-sm font-medium py-2 px-2 rounded-sm">
+          <button onClick={() => onOpenDrawer()} className="bg-white text-gray-700 text-sm font-medium py-2 px-2 rounded-sm">
             {translationFn("assign")}
           </button>
           <button

@@ -1,27 +1,19 @@
-import { LoaderFunction, useLoaderData, json, useFetcher } from "remix";
+import { LoaderFunction, useLoaderData, useFetcher } from "remix";
 import { db } from "~/utils/db.server";
-import { useTranslation } from "react-i18next";
-import { i18n } from "~/utils/i18n.server";
-import { School, Ticket } from ".prisma/client";
-import { Language } from "remix-i18next";
+import { Ticket } from ".prisma/client";
 import OrdersBlade from "~/components/OrderBlade";
-import {
-  TicketWithTask,
-  TicketWithTaskReturnType,
-} from "../../components/OrderBlade";
-import { useRef } from "react";
+import { TicketWithTaskReturnType } from "../../components/OrderBlade";
+import { Form } from "~/components/mantine/mantineForm";
+import { Modal, ModalBase } from "~/components/modal";
+import { Drawer, DrawerBase } from "~/components/drawer";
 
 export { CatchBoundary, ErrorBoundary } from "~/utils";
-
-type LoaderData = {
-  orders: TicketWithTask[];
-};
 
 export let loader: LoaderFunction = async ({
   request,
 }): Promise<TicketWithTaskReturnType> => {
   let orders = await db.ticket.findMany({
-    where:{deleted: false},
+    where: { deleted: false },
     include: {
       school: true,
       Task: {
@@ -41,10 +33,20 @@ export let loader: LoaderFunction = async ({
 
 export default function Orders() {
   let orders = useLoaderData<TicketWithTaskReturnType>();
-  let { t } = useTranslation();
+  let fetcher = useFetcher();
   return (
-    <div className="w-full border-t-2 border-gray-100 h-full">
-      <OrdersBlade orders={orders} className="max-h-full min-h-[440] w-full" />
-    </div>
+    <>
+      <Drawer>
+      <Modal>
+        <DrawerBase>
+          <Form<Ticket> {...fetcher} className="max-w-sm" />
+        </DrawerBase>
+        <ModalBase>
+          <Form<Ticket> {...fetcher} className="max-w-sm" />
+        </ModalBase>
+        <OrdersBlade orders={orders} className="max-h-full w-full" />
+      </Modal>
+      </Drawer>
+    </>
   );
 }

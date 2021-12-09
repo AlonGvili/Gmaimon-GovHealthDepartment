@@ -131,7 +131,14 @@ model Ticket {
   deleter          DeletedTicket[]
   opener           Member[]        @relation("OpenByMember")
 
-  @@unique([schoolName, devices, status], name: "ticketIdx")
+  @@index([delivaryDate, status])
+  @@index([schoolName])
+  @@index([trackingNumber])
+  @@index([status])
+  @@index([supervisorId]) 
+  @@index([deleted])
+  @@index([schoolId])
+  @@index([supervisorId, schoolId])
 }
 
 model DeletedTicket {

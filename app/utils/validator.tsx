@@ -13,26 +13,26 @@ function normalizeSchoolType(type: string): SchoolType {
 const createSchool = (
   name: string,
   city: string,
+  schoolType: SchoolType,
   street: string,
   number: number,
   zip: number,
   principalNme: string,
   principalPhone: string,
-  schoolType: SchoolType,
-  workManagerName: string,
-  workManagerPhone: string,
-  wifiPassword: string,
-  wifiName: string
+  workManagerName?: string,
+  workManagerPhone?: string,
+  wifiPassword?: string,
+  wifiName?: string
 ) => {
   return Prisma.validator<Prisma.SchoolCreateInput>()({
     name,
+    schoolType: normalizeSchoolType(schoolType),
     city,
     street,
     number,
     zip,
     principalNme,
     principalPhone,
-    schoolType: normalizeSchoolType(schoolType),
     workManagerName,
     workManagerPhone,
     wifiPassword,
@@ -75,4 +75,4 @@ const findSpecificSchool = (name: string) => {
   });
 };
 
-export { findSpecificSchool, createSchool, updateSchool };
+export { findSpecificSchool, createSchool, updateSchool, normalizeSchoolType };

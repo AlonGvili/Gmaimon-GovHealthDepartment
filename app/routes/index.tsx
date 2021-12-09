@@ -1,14 +1,17 @@
-import { LoaderFunction, redirect } from "remix";
-import { getUser } from '~/utils/session.server';
+import { Outlet } from "remix";
+import { AppShell, Box, Container, Header, Navbar, Text, useMantineTheme } from '@mantine/core';
+import { useMantineThemeStyles } from "@mantine/styles/lib/theme/MantineProvider";
 
-export let loader: LoaderFunction = async ({ request }) => {
-  let user = await getUser(request)
-  if (!user) return redirect("/login");
-  if (user?.role === "SUPERVISOR") {
-    return redirect(`members/${user.idNumber}/dashboard/supervisor/orders`);
-  }
-  if (user?.role === "ADMIN") {
-    return redirect(`admin`);
-  }
-  return redirect(`/members/${user.idNumber}/dashboard`);
-};
+export { CatchBoundary, ErrorBoundary } from "~/utils";
+
+export default function Index() {
+  return (
+    <AppShell
+      padding="md"
+      navbar={<Navbar width={{ base: 300 }} height={500} padding="xs">{/* Navbar content */}</Navbar>}
+      header={<Header height={60} padding="xs">{/* Header content */}</Header>}
+    >
+        <Outlet />
+    </AppShell>
+  );
+}

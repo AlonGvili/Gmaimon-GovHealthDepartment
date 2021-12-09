@@ -21,6 +21,7 @@ export let loader: LoaderFunction = async ({
   request,
 }): Promise<TicketWithTaskReturnType> => {
   let orders = await db.ticket.findMany({
+    where:{deleted: false},
     include: {
       school: true,
       Task: {

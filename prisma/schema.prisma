@@ -54,18 +54,20 @@ model Team {
 
 // add to send email verification
 model Member {
-  id           Int      @id @default(autoincrement())
-  name         String
-  email        String   @unique
-  phone        String
-  socialNumber String   @unique
-  username     String
-  passwordHash String
-  role         Role     @default(MEMBER)
-  tasks        Task[]
-  team         Team?    @relation(fields: [teamId], references: [id])
-  teamId       Int?
-  Ticket       Ticket[]
+  id               Int             @id @default(autoincrement())
+  name             String
+  email            String          @unique
+  phone            String
+  socialNumber     String          @unique
+  username         String
+  passwordHash     String
+  role             Role            @default(MEMBER)
+  tasks            Task[]
+  team             Team?           @relation(fields: [teamId], references: [id])
+  teamId           Int?
+  openOrders       Ticket[]        @relation("OpenByMember")
+  supervisorOrders Ticket[]        @relation("supervisor")
+  deletedOrder     DeletedTicket[]
 }
 
 model Task {
@@ -106,10 +108,10 @@ model Device {
 }
 
 model Ticket {
-  id               Int          @id @default(autoincrement())
-  uid              String       @unique @default(uuid())
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  id               Int             @id @default(autoincrement())
+  uid              String          @unique @default(uuid())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
   delivaryDate     DateTime?
   schoolName       String?
   address          String?
@@ -118,13 +120,27 @@ model Ticket {
   contactName      String?
   contactPhone     String?
   contactSignature String?
-  status           TicketStatus @default(OPEN)
+  deleted          Boolean         @default(false)
+  deletedAt        DateTime?
+  status           TicketStatus    @default(OPEN)
   Task             Task[]
-  school           School?      @relation(fields: [schoolId], references: [id])
+  school           School?         @relation(fields: [schoolId], references: [id])
   schoolId         Int?
-  supervisor       Member?      @relation(fields: [supervisorId], references: [id])
+  supervisor       Member?         @relation("supervisor", fields: [supervisorId], references: [id])
   supervisorId     Int?
+  deleter          DeletedTicket[]
+  opener           Member[]        @relation("OpenByMember")
+
   @@unique([schoolName, devices, status], name: "ticketIdx")
+}
+
+model DeletedTicket {
+  id        Int      @id @default(autoincrement())
+  ticketId  String   @unique
+  ticket    Ticket?  @relation(fields: [ticketId], references: [uid])
+  deleterId String
+  deleter   Member?  @relation(fields: [deleterId], references: [socialNumber])
+  createdAt DateTime @default(now())
 }
 
 enum SchoolType {

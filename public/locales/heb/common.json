@@ -70,5 +70,6 @@
   "orders.assign": "שייך לצוות",
   "orders.tasks": "יצירת משימה",
   "assignTo": "שייך לצוות",
-  "APPROVED": "אושרה"
+  "APPROVED": "אושרה",
+  "delivaryDate": "ת.אספקה"
 }

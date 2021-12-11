@@ -1,5 +1,6 @@
+import { Outlet } from "remix";
 export { CatchBoundary, ErrorBoundary } from "~/utils";
 
-export default function Devices() {
-  return null;
+export default function DevicesView() {
+  return <Outlet />;
 }

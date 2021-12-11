@@ -55,7 +55,7 @@ export let action: ActionFunction = async ({ request }) => {
       if (user) {
         return createUserSession(
           user.email,
-          user.role === "ADMIN" ? `admin` : `members/${user.socialNumber}`
+          user.role === "ADMIN" ? `admin` : `/`
         );
       }
     case "register":

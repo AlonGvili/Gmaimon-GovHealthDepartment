@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Tab } from "@headlessui/react";
-import { Outlet } from "react-router";
 import { Link, useLocation, NavLink } from "remix";
 
 function classNames(...classes: string[]) {

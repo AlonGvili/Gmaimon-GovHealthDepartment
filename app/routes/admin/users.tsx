@@ -9,6 +9,8 @@ import { db } from "~/utils/db.server";
 import { useTranslation, TFunction } from "react-i18next";
 import { i18n } from "~/utils/i18n.server";
 import { Link, Outlet, useMatches } from 'remix';
+import { Row } from 'react-table';
+import { Member } from '@prisma/client';
 
 export { CatchBoundary, ErrorBoundary } from "~/utils";
 
@@ -25,10 +27,6 @@ export let loader: LoaderFunction = async ({ request }) => {
   });
 };
 
-export let handle = {
-  breadcrumb: ({match, t}: {match: ReturnType<typeof useMatches>, t: TFunction}) => <Link to="/admin/users">{t("users")}</Link>,
-};
-
 export default function Users() {
   let { users: data } = useLoaderData();
   let { t } = useTranslation("common");
@@ -36,8 +34,7 @@ export default function Users() {
     () => [
       {
         Header: t("name"),
-        accessor: "name",
-        Cell: ({ row }) => {
+        Cell: ({ row }: {row: Row<Member>}) => {
           return (
             <Link
               to={row.original.socialNumber}
@@ -58,7 +55,7 @@ export default function Users() {
     <div className="flex h-full">
       <div className="bg-white max-w-lg h-full py-8">
         <h1 className="text-xl text-gray-800 px-6">{t("users")}</h1>
-        <Table columns={columns} data={data} />
+        <Table<Member> columns={columns} data={data} translationFn={t}/>
       </div>
       <Outlet />
     </div>

@@ -1,5 +1,5 @@
 export { CatchBoundary, ErrorBoundary } from "~/utils";
 
-export default function Teams() {
+export default function Devices() {
   return null;
 }

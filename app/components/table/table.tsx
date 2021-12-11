@@ -1,142 +1,127 @@
-import React from "react";
-import BladeActionsMenu from "../BladeOptionsMenu";
+import { HiChevronDown, HiChevronUp } from "react-icons/hi";
 import {
-  useTable,
-  useResizeColumns,
-  useFlexLayout,
+  CellProps,
+  Column,
+  defaultColumn,
+  HeaderGroup,
+  HeaderProps,
+  Row,
+  usePagination,
   useRowSelect,
+  UseRowSelectHooks,
+  UseRowSelectOptions,
+  UseRowSelectRowProps,
+  useSortBy,
+  UseSortByColumnOptions,
+  UseSortByColumnProps,
+  useTable,
+  UseTableHeaderGroupProps,
 } from "react-table";
 
-const headerProps = (props, { column }) => getStyles(props, column.align)
-
-const cellProps = (props, { cell }) => getStyles(props, cell.column.align)
-
-const getStyles = (props, align = 'left') => [
-  props,
-  {
-    style: {
-      justifyContent: align === 'right' ? 'flex-end' : 'flex-start',
-      alignItems: 'flex-start',
-      display: 'flex',
-    },
-  },
-]
-const IndeterminateCheckbox = React.forwardRef(
-  ({ indeterminate, ...rest }, ref) => {
-    const defaultRef = React.useRef();
-    const resolvedRef = ref || defaultRef;
-
-    React.useEffect(() => {
-      resolvedRef.current.indeterminate = indeterminate;
-    }, [resolvedRef, indeterminate]);
-
-    return <input type="checkbox" ref={resolvedRef} {...rest} />;
-  }
-);
-
-function Table({ columns, data }) {
-  const defaultColumn = React.useMemo(
-    () => ({
-      // When using the useFlexLayout:
-      minWidth: 30, // minWidth is only used as a limit for resizing
-      width: 150, // width is used for both the flex-basis and flex-grow
-      maxWidth: 400, // maxWidth is only used as a limit for resizing
-    }),
-    []
-  );
-
-  const { getTableProps, headerGroups, rows, prepareRow } = useTable(
-    {
-      columns,
-      data,
-      defaultColumn,
-    },
-    useResizeColumns,
-    useFlexLayout,
-    useRowSelect,
-    (hooks) => {
-      hooks.allColumns.push((columns) => [
-        // Let's make a column for selection
-        {
-          id: "selection",
-          disableResizing: true,
-          minWidth: 35,
-          width: 35,
-          maxWidth: 35,
-          // The header can use the table's getToggleAllRowsSelectedProps method
-          // to render a checkbox
-          Header: ({ getToggleAllRowsSelectedProps }) => (
-            <div>
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-            </div>
-          ),
-          // The cell can use the individual row's getToggleRowSelectedProps method
-          // to the render a checkbox
-          Cell: ({ row }) => (
-            <div>
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            </div>
-          ),
+export default function Table({columns, data,  ...props}: Parameters<typeof useTable>[0]) {
+  const { getTableProps, getTableBodyProps, headerGroups, prepareRow, rows } =
+    useTable(
+      {
+        columns,
+        data,
+        defaultColumn,
+        initialState: {
+          hiddenColumns: ["מבצע"],
+          pageIndex: 0,
         },
-        {
-          id: "actions",
-          disableResizing: true,
-          minWidth: 35,
-          width: 35,
-          maxWidth: 35,
-          Cell: ({ row }) => <BladeActionsMenu />,
-        },
-        ...columns,
-      ]);
-    //   hooks.useInstanceBeforeDimensions.push(({ headerGroups }) => {
-    //     // fix the parent group of the selection button to not be resizable
-    //     const selectionGroupHeader = headerGroups[0].headers[0]
-    //     selectionGroupHeader.canResize = false
-    //   })
-    }
-  );
-
-  return (
-    <div {...getTableProps()} className="table-auto">
-      <div>
-        {headerGroups.map((headerGroup) => (
-          <div {...headerGroup.getHeaderGroupProps()} >
-            {headerGroup.headers.map((column) => (
-              <div {...column.getHeaderProps(headerProps)} >
-                {column.render("Header")}
-                {/* Use column.getResizerProps to hook up the events correctly */}
-                {column.canResize && (
-                  <div
-                    {...column.getResizerProps()}
-                    className={`resizer ${
-                      column.isResizing ? 'isResizing' : ''
-                    }`}
-                  />
-                )}
+        autoResetPage: false,
+        manualPagination: true,
+        pageCount: 0,
+      },
+      useSortBy,
+      usePagination,
+      useRowSelect,
+      (hooks) => {
+        hooks.allColumns.push((columns) => [
+          {
+            id: "selection",
+            minWidth: 35,
+            width: 35,
+            maxWidth: 35,
+            Header: ({
+              getToggleAllRowsSelectedProps,
+            }: UseRowSelectHooks<HeaderProps<{}>>) => (
+              <div>
+                <RowCheckbox {...row.getToggleAllRowsSelectedProps()} />
               </div>
+            ),
+            Cell: ({ row: { getToggleRowSelectedProps } }) => (
+              <div>
+                <RowCheckbox {...getToggleRowSelectedProps()} />
+              </div>
+            ),
+          },
+          ...columns,
+        ]);
+      }
+    );
+  return (
+    <table
+      {...props}
+      {...getTableProps()}
+      className="table-auto w-full bg-white"
+    >
+      <thead className="bg-gray-50">
+        {headerGroups.map((headerGroup) => (
+          <tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map((column: HeaderGroup<{}>) => (
+              <th
+                scope="col"
+                {...column.getHeaderProps([
+                  {
+                    className:
+                      "text-gray-800 text-justify text-xs py-2 px-6 py-3 font-medium",
+                  },
+                  column.getSortByToggleProps(),
+                ])}
+              >
+                <div className="flex w-full justify-between items-center">
+                  {column.render("Header")}
+                  <span>
+                    {column.isSorted ? (
+                      column.isSortedDesc ? (
+                        <HiChevronDown />
+                      ) : (
+                        <HiChevronUp />
+                      )
+                    ) : null}
+                  </span>
+                </div>
+              </th>
             ))}
-          </div>
+          </tr>
         ))}
-      </div>
-      <div >
+      </thead>
+      <tbody {...getTableBodyProps()}>
         {rows.map((row) => {
           prepareRow(row);
           return (
-            <div {...row.getRowProps()} >
+            <tr
+              {...row.getRowProps({
+                className: "hover:bg-gray-100",
+              })}
+            >
               {row.cells.map((cell) => {
                 return (
-                  <div {...cell.getCellProps(cellProps)} className="table-cell">
+                  <td
+                    {...cell.getCellProps({
+                      className:
+                        "text-gray-800 text-justify text-xs py-2 px-6 py-3 font-medium",
+                    })}
+                  >
                     {cell.render("Cell")}
-                  </div>
+                  </td>
                 );
               })}
-            </div>
+            </tr>
           );
         })}
-      </div>
-    </div>
+      </tbody>
+    </table>
   );
 }
-
-
-export default Table;

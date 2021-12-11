@@ -9,50 +9,40 @@ datasource db {
 }
 
 model School {
-  id               Int        @id @default(autoincrement())
-  name             String     @unique
-  city             String
-  street           String
-  number           Int
-  zip              Int
-  principalNme     String
-  principalPhone   String
+  id               Int             @id @default(autoincrement())
+  name             String          @unique
+  city             String?
+  street           String?
+  number           Int?
+  zip              Int?
+  principalNme     String?
+  principalPhone   String?
   workManagerName  String?
   workManagerPhone String?
   wifiName         String?
   wifiPassword     String?
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-  schoolType       SchoolType @default(ELSE)
-  buildings        Building[]
-  Ticket           Ticket[]
+  deleted          Boolean         @default(false)
+  deletedAt        DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  schoolType       SchoolType      @default(ELSE)
+  order            Order[]
+  room             Room[]
+  deleter          DeletedSchool[]
+  supervisor       Member?         @relation("SchoolSupervisor", fields: [supervisorId], references: [socialNumber])
+  supervisorId     String?         @unique
 }
 
-model Building {
-  id       Int    @id @default(autoincrement())
-  name     String
-  number   Int
-  schoolId Int
-  school   School @relation(fields: [schoolId], references: [id])
-  rooms    Room[]
-}
-
-// validation on rooms count per order devices count
+// TODO: validation on rooms count per order devices count
 model Room {
-  id         Int       @id @default(autoincrement())
-  name       String
-  buildingId Int?
-  building   Building? @relation(fields: [buildingId], references: [id])
-  devices    Device[]
-}
-
-model Team {
   id       Int      @id @default(autoincrement())
-  leaderId Int?
-  members  Member[]
+  school   School?  @relation(fields: [schoolId], references: [id])
+  schoolId Int?
+  name     String
+  devices  Device[]
 }
 
-// add to send email verification
+// TODO: add to send email verification ?
 model Member {
   id               Int             @id @default(autoincrement())
   name             String
@@ -61,36 +51,47 @@ model Member {
   socialNumber     String          @unique
   username         String
   passwordHash     String
+  deleted          Boolean         @default(false)
+  deletedAt        DateTime?
   role             Role            @default(MEMBER)
+  elcLicenseNumber String?
   tasks            Task[]
-  team             Team?           @relation(fields: [teamId], references: [id])
-  teamId           Int?
-  openOrders       Ticket[]        @relation("OpenByMember")
-  supervisorOrders Ticket[]        @relation("supervisor")
-  deletedOrder     DeletedTicket[]
+  openOrders       Order[]         @relation("OpenByMember")
+  supervisorOrders Order[]         @relation("supervisor")
+  deletedOrder     DeletedOrder[]
+  deletedTask      DeletedTask[]
+  deletedSchool    DeletedSchool[]
+  School           School?         @relation("SchoolSupervisor")
+  deletedMember    Member?         @relation("DeletedBy")
+  deleterId        Int?            @unique
+  deleter          Member?         @relation("DeletedBy", fields: [deleterId], references: [id])
+
 }
 
 model Task {
-  id                       Int        @id @default(autoincrement())
-  createdAt                DateTime   @default(now())
-  updatedAt                DateTime   @updatedAt
+  id                       Int           @id @default(autoincrement())
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
   startDate                DateTime?
   endDate                  DateTime?
   note                     String?
-  status                   TaskStatus @default(PENDING)
-  member                   Member?    @relation(fields: [memberId], references: [id])
+  status                   TaskStatus    @default(PENDING)
+  member                   Member?       @relation(fields: [memberId], references: [id])
   memberId                 Int?
-  order                    Ticket?    @relation(fields: [orderId], references: [id])
+  order                    Order?        @relation(fields: [orderId], references: [id])
   orderId                  Int?
   devices                  Device[]
+  deleter                  DeletedTask[]
+  deleted                  Boolean       @default(false)
+  deletedAt                DateTime?
   deviceLocation           String?
-  approvedByMember         Boolean    @default(false)
+  approvedByMember         Boolean       @default(false)
   approvedByMemberDate     DateTime?
-  approvedByLeader         Boolean    @default(false)
+  approvedByLeader         Boolean       @default(false)
   approvedByLeaderDate     DateTime?
-  approvedBySupervisor     Boolean    @default(false)
+  approvedBySupervisor     Boolean       @default(false)
   approvedBySupervisorDate DateTime?
-  approvedByAdmin          Boolean    @default(false)
+  approvedByAdmin          Boolean       @default(false)
   approvedByAdminDate      DateTime?
   memberSignature          String?
   leaderSignature          String?
@@ -101,18 +102,18 @@ model Task {
 model Device {
   id           Int    @id @default(autoincrement())
   serialNumber String
-  Room         Room?  @relation(fields: [roomId], references: [id])
+  room         Room?  @relation(fields: [roomId], references: [id])
   roomId       Int?
   task         Task?  @relation(fields: [taskId], references: [id])
   taskId       Int?
 }
 
-model Ticket {
-  id               Int             @id @default(autoincrement())
-  uid              String          @unique @default(uuid())
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  delivaryDate     DateTime?
+model Order {
+  id               Int            @id @default(autoincrement())
+  uid              String         @unique @default(uuid())
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  delivaryDate     String?
   schoolName       String?
   address          String?
   trackingNumber   String?
@@ -120,33 +121,51 @@ model Ticket {
   contactName      String?
   contactPhone     String?
   contactSignature String?
-  deleted          Boolean         @default(false)
+  deleted          Boolean        @default(false)
   deletedAt        DateTime?
-  status           TicketStatus    @default(OPEN)
+  status           OrderStatus    @default(OPEN)
   Task             Task[]
-  school           School?         @relation(fields: [schoolId], references: [id])
+  school           School?        @relation(fields: [schoolId], references: [id])
   schoolId         Int?
-  supervisor       Member?         @relation("supervisor", fields: [supervisorId], references: [id])
+  supervisor       Member?        @relation("supervisor", fields: [supervisorId], references: [id])
   supervisorId     Int?
-  deleter          DeletedTicket[]
-  opener           Member[]        @relation("OpenByMember")
+  deleter          DeletedOrder[]
+  opener           Member[]       @relation("OpenByMember")
 
   @@index([delivaryDate, status])
   @@index([schoolName])
   @@index([trackingNumber])
   @@index([status])
-  @@index([supervisorId]) 
+  @@index([supervisorId])
   @@index([deleted])
   @@index([schoolId])
   @@index([supervisorId, schoolId])
 }
 
-model DeletedTicket {
+model DeletedOrder {
   id        Int      @id @default(autoincrement())
-  ticketId  String   @unique
-  ticket    Ticket?  @relation(fields: [ticketId], references: [uid])
+  orderId   String   @unique
+  order     Order?   @relation(fields: [orderId], references: [uid], onDelete: Cascade)
   deleterId String
-  deleter   Member?  @relation(fields: [deleterId], references: [socialNumber])
+  deleter   Member?  @relation(fields: [deleterId], references: [socialNumber], onDelete: NoAction)
+  createdAt DateTime @default(now())
+}
+
+model DeletedTask {
+  id        Int      @id @default(autoincrement())
+  taskId    Int?
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  deleterId String
+  deleter   Member?  @relation(fields: [deleterId], references: [socialNumber], onDelete: NoAction)
+  createdAt DateTime @default(now())
+}
+
+model DeletedSchool {
+  id        Int      @id @default(autoincrement())
+  schoolId  Int?
+  school    School?  @relation(fields: [schoolId], references: [id], onDelete: NoAction)
+  deleterId String
+  deleter   Member?  @relation(fields: [deleterId], references: [socialNumber], onDelete: NoAction)
   createdAt DateTime @default(now())
 }
 
@@ -176,11 +195,12 @@ enum TaskStatus {
   APPROVEDBYADMIN
 }
 
-enum TicketStatus {
+enum OrderStatus {
   OPEN
   PROCESSING
   COMPLETED
   CANCELLED
   SHIPPED
   APPROVED
+  DELAYED
 }

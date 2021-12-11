@@ -21,20 +21,6 @@ export function getUrlByUserRole({ socialNumber, role }: Member) {
   }
 }
 
-function getMessageByCode(code: number) {
-  if (code === 10) {
-    return "דואר אלקטרוני בשימוש";
-  } else if (code === 11) {
-    return "סיסמה לא נכונה";
-  } else if (code === 13) {
-    return "סיסמה חסרה";
-  } else if (code === 12) {
-    return "חשבון לא קיים במערכת";
-  } else {
-    return "";
-  }
-}
-
 export async function login({
   email,
   password,
@@ -93,7 +79,7 @@ export async function requireUserId(
 
 export async function isAuthenticated(request: Request) {
   let userId = await requireUserId(request);
-  return !!userId;
+  return Boolean(userId);
 }
 
 export async function getUser(request: Request) {

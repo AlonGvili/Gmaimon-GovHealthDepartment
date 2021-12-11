@@ -81,7 +81,7 @@ const DrawerButton: FunctionComponent<
       {...props}
       onClick={() => onOpen()}
     >
-      {translationFn("orders.new")}
+      {translationFn(`${children}`)}
     </button>
   );
 };

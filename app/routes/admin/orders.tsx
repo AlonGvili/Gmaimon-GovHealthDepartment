@@ -1,52 +1,25 @@
-import { LoaderFunction, useLoaderData, useFetcher } from "remix";
-import { db } from "~/utils/db.server";
-import { Ticket } from ".prisma/client";
-import OrdersBlade from "~/components/OrderBlade";
-import { TicketWithTaskReturnType } from "../../components/OrderBlade";
-import { Form } from "~/components/mantine/mantineForm";
-import { Modal, ModalBase } from "~/components/modal";
-import { Drawer, DrawerBase } from "~/components/drawer";
-
+import { json, LoaderFunction, Outlet, useLoaderData } from "remix";
+import { findMany } from "~/routes/api/tasks/findMany";
+import { isAuthenticated } from '~/utils/session.server';
+import { OrderReturnType } from "../api/orders/read";
 export { CatchBoundary, ErrorBoundary } from "~/utils";
 
-export let loader: LoaderFunction = async ({
-  request,
-}): Promise<TicketWithTaskReturnType> => {
-  let orders = await db.ticket.findMany({
-    where: { deleted: false },
-    include: {
-      school: true,
-      Task: {
-        include: {
-          member: {
-            select: {
-              name: true,
-              socialNumber: true,
-            },
-          },
-        },
-      },
-    },
-  });
-  return orders;
+type LoaderData = {
+  count: OrderReturnType[0];
+  data: OrderReturnType[1]
+}
+export let loader: LoaderFunction = async ({request}) => {
+  await isAuthenticated(request);
+  let [{count}, {data}] = await findMany({});
+  return json({ count, data });
 };
 
-export default function Orders() {
-  let orders = useLoaderData<TicketWithTaskReturnType>();
-  let fetcher = useFetcher();
+export default function OrderView() {
+  let {count, data} = useLoaderData<LoaderData>();
   return (
-    <>
-      <Drawer>
-      <Modal>
-        <DrawerBase>
-          <Form<Ticket> {...fetcher} className="max-w-sm" />
-        </DrawerBase>
-        <ModalBase>
-          <Form<Ticket> {...fetcher} className="max-w-sm" />
-        </ModalBase>
-        <OrdersBlade orders={orders} className="max-h-full w-full" />
-      </Modal>
-      </Drawer>
-    </>
+    <div className="w-full h-full">
+      {/* all orders overview placeholder */}
+      <Outlet />
+    </div>
   );
 }

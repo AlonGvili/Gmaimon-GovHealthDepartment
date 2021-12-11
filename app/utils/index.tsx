@@ -1,5 +1,7 @@
-import { useCatch } from "remix";
+import React from "react";
+import { useCatch, useTransition, useFetcher } from "remix";
 import { Document } from "~/root";
+import { TicketPaginationResult } from "~/routes/api/orders/pagination";
 
 export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error);
@@ -52,4 +54,9 @@ export function CatchBoundary() {
 
 export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
+}
+export function normalizeDate(date: string | null | undefined) {
+  if (!date) return "";
+  const d = new Date(date);
+  return d.toLocaleDateString();
 }

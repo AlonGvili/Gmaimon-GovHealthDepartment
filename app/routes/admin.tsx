@@ -1,22 +1,22 @@
-import { LoaderFunction, NavLink, Link, useMatches } from "remix";
+import { LoaderFunction } from "remix";
 import { useLoaderData, json, Outlet } from "remix";
 import { getUser } from "~/utils/session.server";
 import { i18n } from "~/utils/i18n.server"; // this is the first file you created
-import { useTranslation } from "react-i18next";
 import SideBar from "~/components/sidebar";
 import ButtonLogout from "~/components/button.logout";
 import User from "~/components/user";
 import {
   RiBuildingLine,
-  RiCalendarTodoFill,
+  RiCalendarTodoFill as RiCalendarFill,
   RiCpuLine,
   RiListCheck2,
   RiLogoutCircleRLine,
-  RiTeamLine,
   RiUserLine,
 } from "react-icons/ri";
 import logo from "~/assets/logo.png";
-import { t } from "i18next";
+import NavBarLink from "~/components/NavBarLink";
+import { Modal } from "~/components/modal";
+import { Drawer } from "~/components/drawer";
 
 export { CatchBoundary, ErrorBoundary } from "~/utils";
 
@@ -28,116 +28,36 @@ export let loader: LoaderFunction = async ({ request }) => {
   });
 };
 
-export let handle = {
-  breadcrumb: () => <Link to="/admin">{t("admin")}</Link>,
-};
-
 export default function Admin() {
-  let matches = useMatches();
   let data = useLoaderData();
-  let { t } = useTranslation("common");
-
   return (
     <div className="relative flex h-screen w-screen">
       <SideBar className="bg-white flex flex-col justify-evenly w-64 px-8 py-12">
         <img src={logo} className="w-24 mb-32 object-contain self-center" />
         <div className="h-full">
-          <NavLink
-            to="orders"
-            prefetch="intent"
-            className={({ isActive }) =>
-              isActive ? "text-brand" : "text-gray-500 "
-            }
-          >
-            <div className="flex w-full items-center mb-2 p-2 hover:bg-gray-100 hover:rounded-md text-sm">
-              <RiCalendarTodoFill className="h-5 w-5 ml-6 text-center" />
-              <p className="text-current">{t("orders")}</p>
-            </div>
-          </NavLink>
-          <NavLink
-            to="tasks"
-            prefetch="intent"
-            className={({ isActive }) =>
-              isActive ? "text-brand" : "text-gray-500"
-            }
-          >
-            <div className="flex w-full items-center mb-2 p-2 hover:bg-gray-100 hover:rounded-md text-sm">
-              <RiListCheck2 className="h-5 w-5 ml-6 text-center" />
-              <p className="text-current">{t("tasks")}</p>
-            </div>
-          </NavLink>
-          <NavLink
-            to="schools"
-            prefetch="intent"
-            className={({ isActive }) =>
-              isActive ? "text-brand" : "text-gray-500"
-            }
-          >
-            <div className="flex w-full items-center mb-2 p-2 hover:bg-gray-100 hover:rounded-md text-sm">
-              <RiBuildingLine className="h-5 w-5 ml-6 text-center" />
-              <p className="text-current">{t("schools")}</p>
-            </div>
-          </NavLink>
-          <NavLink
-            to="devices"
-            prefetch="intent"
-            className={({ isActive }) =>
-              isActive ? "text-brand" : "text-gray-500"
-            }
-          >
-            <div className="flex w-full items-center mb-2 p-2 hover:bg-gray-100 hover:rounded-md text-sm">
-              <RiCpuLine className="h-5 w-5 ml-6 text-center" />
-              <p className="text-current">{t("devices")}</p>
-            </div>
-          </NavLink>
-          <NavLink
-            to="users"
-            prefetch="intent"
-            className={({ isActive }) =>
-              isActive ? "text-brand" : "text-gray-500"
-            }
-          >
-            <div className="flex w-full items-center mb-2 p-2 hover:bg-gray-100 hover:rounded-md text-sm">
-              <RiUserLine className="h-5 w-5 ml-6 text-center" />
-              <p className="text-current">{t("users")}</p>
-            </div>
-          </NavLink>
-          <NavLink
-            to="teams"
-            prefetch="intent"
-            className={({ isActive }) =>
-              isActive ? "text-brand" : "text-gray-500"
-            }
-          >
-            <div className="flex w-full items-center mb-2 p-2 hover:bg-gray-100 hover:rounded-md text-sm">
-              <RiTeamLine className="h-5 w-5 ml-6 text-center" />
-              <p className="text-current font-medium">{t("teams")}</p>
-            </div>
-          </NavLink>
+          <NavBarLink to="/admin/orders" icon={RiCalendarFill} label="orders" />
+          <NavBarLink to="/admin/tasks" icon={RiListCheck2} label="tasks" />
+          <NavBarLink
+            to="/admin/schools"
+            icon={RiBuildingLine}
+            label="schools"
+          />
+          <NavBarLink to="/admin/devices" icon={RiCpuLine} label="devices" />
+          <NavBarLink to="/admin/users" icon={RiUserLine} label="users" />
         </div>
         <div>
-          <User t={t} className="w-full mb-6">
-            <User.Title t={t} user={data.user} />
-          </User>
-          <ButtonLogout dir="rtl" className="text-gray-500">
-            <div className="flex w-full items-center mb-6">
-              <RiLogoutCircleRLine className="h-5 w-5 ml-6 text-center" />
-              <p className="text-current">{t("logout")}</p>
-            </div>
-          </ButtonLogout>
+          <User user={data.user} className="w-full mb-6" />
+          <ButtonLogout
+            icon={RiLogoutCircleRLine}
+            className="text-gray-500"
+            children="logout"
+          />
         </div>
       </SideBar>
-      <div className="flex flex-col w-full">
-        {/* <div className="max-w-md w-full flex">
-          {matches
-            .filter((match) => match.handle && match.handle.breadcrumb)
-            .map((match, index) => (
-              <div key={index}>{match.handle.breadcrumb({match, t})}</div>
-            ))}
-        </div> */}
-        <div className="bg-gray-100 p-12 h-full w-full">
-        <Outlet />
-        </div>
+      <div className="flex flex-col p-6 h-full w-full">
+        <Drawer>
+          <Outlet />
+        </Drawer>
       </div>
     </div>
   );

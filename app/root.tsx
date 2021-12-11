@@ -53,7 +53,7 @@ export function Document({
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="bg-warmGray-200 ">
         {children}
         <ScrollRestoration />
         <Scripts />

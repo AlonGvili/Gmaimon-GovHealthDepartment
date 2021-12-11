@@ -10,6 +10,8 @@ import {
 import { RiGoogleLine, RiTwitterLine } from "react-icons/ri";
 import { useFetcher } from "remix";
 import { useTranslation } from "react-i18next";
+import { DatePicker } from '@mantine/dates';
+import 'dayjs/locale/he';
 
 type PropsGetter<Type> = {
   [Property in keyof Type]: Type[Property];
@@ -24,7 +26,7 @@ export function Form<T>({ wrapperProps, className, ...props }: FormProps<T>) {
   let { t } = useTranslation();
 
   return (
-      <>
+    <>
       <LoadingOverlay visible={props.state === "submitting"} />
       <props.Form method="post" action="/api/orders">
         <Paper {...wrapperProps}>
@@ -47,12 +49,24 @@ export function Form<T>({ wrapperProps, className, ...props }: FormProps<T>) {
               placeholder={t("trackingNumber")}
               name="trackingNumber"
             />
-            <input
+            <DatePicker
+              placeholder={t("delivaryDate")}
+              name="delivaryDate"
+              locale="he"
+              size="md"
+              firstDayOfWeek="sunday"
+              dir="rtl"
+              fullWidth
+              inputFormat="DD/MM/YYYY"
+              labelFormat="MM/YYYY"
+              defaultValue={new Date()}
+            />
+            {/* <input
               type="text"
               className="text-xs text-coolGray-500 border border-coolGray-200 rounded mb-4"
               placeholder={t("delivaryDate")}
               name="delivaryDate"
-            />
+            /> */}
             <input
               type="number"
               placeholder={t("devices")}
@@ -88,6 +102,6 @@ export function Form<T>({ wrapperProps, className, ...props }: FormProps<T>) {
           </Button>
         </Paper>
       </props.Form>
-      </>
+    </>
   );
 }

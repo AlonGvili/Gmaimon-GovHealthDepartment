@@ -1,11 +1,19 @@
 import type { ActionFunction, LoaderFunction } from "remix";
+import { destroySession, getUserSession } from "../utils/session.server";
 import { redirect } from "remix";
-import { logout } from "~/utils/session.server";
 
 export let action: ActionFunction = async ({ request }) => {
-  return logout(request);
+  let session = await getUserSession(request);
+  if (session) {
+    return redirect("/login", {
+      headers: {
+        "Set-Cookie": await destroySession(session),
+      },
+    });
+  }
+  return null;
 };
 
-export let loader: LoaderFunction = async () => {
+export const loader: LoaderFunction = async () => {
   return redirect("/");
 };

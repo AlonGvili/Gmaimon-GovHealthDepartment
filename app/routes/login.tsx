@@ -1,26 +1,13 @@
 import { Tab } from "@headlessui/react";
-import { ActionFunction, Form, redirect } from "remix";
-import { useActionData, Link, useSearchParams } from "remix";
+import { ActionFunction, Form, json, LoaderFunction } from "remix";
+import { useActionData } from "remix";
 import { db } from "~/utils/db.server";
-import {
-  createUserSession,
-  getUser,
-  login,
-  register,
-} from "~/utils/session.server";
+import { createUserSession, login, register } from "~/utils/session.server";
 import ValidationMessage from "../components/ValidationMessage";
-
-function validateUsername(username: unknown) {
-  if (typeof username !== "string" || username.length < 3) {
-    return `שם משתמש חייב להיות מינימום 2 אותיות`;
-  }
-}
-
-function validatePassword(password: unknown) {
-  if (typeof password !== "string" || password.length < 6) {
-    return `סיסמה חייבת להיות באורך של מינימום 6 תוים`;
-  }
-}
+import { i18n } from "~/utils/i18n.server"; // this is the first file you created
+import { useTranslation } from "react-i18next";
+import { getUserSession } from "../utils/session.server";
+export { CatchBoundary, ErrorBoundary } from "~/utils";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -29,7 +16,6 @@ function classNames(...classes: string[]) {
 type ActionData = {
   formError?: string;
   fieldErrors?: {
-    username: string | undefined;
     password: string | undefined;
     email: string | undefined;
   };
@@ -38,7 +24,7 @@ type ActionData = {
     username: string;
     password: string;
     email: string;
-    idNumber: string;
+    socialNumber: string;
     name: string;
     phone: string;
   };
@@ -52,7 +38,7 @@ export let action: ActionFunction = async ({ request }) => {
   let name = form.get("name") as string;
   let email = form.get("email") as string;
   let phone = form.get("phone") as string;
-  let idNumber = form.get("idNumber") as string;
+  let socialNumber = form.get("socialNumber") as string;
 
   switch (loginType) {
     case "login":
@@ -68,18 +54,27 @@ export let action: ActionFunction = async ({ request }) => {
         };
       }
       if (user) {
+        let session = await getUserSession(request);
+        if (user.role === "ADMIN") {
+          session.set("user-role", "admin");
+          session.set("user-sn", user.socialNumber);
+        }
+        if (user.role === "SUPERVISOR") {
+          session.set("user-role", "supervisor");
+          session.set("user-sn", user.socialNumber);
+        }
+        if (user.role === "MEMBER") {
+          session.set("user-role", "member");
+          session.set("user-sn", user.socialNumber);
+        }
         return createUserSession(
           user.email,
-          user.role === "SUPERVISOR"
-            ? `/members/${user?.idNumber}/dashboard/supervisor/orders`
-            : user.role === "ADMIN"
-            ? `/admin`
-            : `/members/${user?.idNumber}/dashboard`
+          user.role === "ADMIN" ? `admin` : `/`
         );
       }
     case "register":
-      let fields = { loginType, username, password };
-      let userExists = await db.user.findFirst({
+      let fields = { loginType, password };
+      let userExists = await db.member.findFirst({
         where: {
           email: { equals: email },
         },
@@ -97,7 +92,7 @@ export let action: ActionFunction = async ({ request }) => {
         email,
         name,
         phone,
-        idNumber,
+        socialNumber,
         username,
         password,
       });
@@ -112,19 +107,24 @@ export let action: ActionFunction = async ({ request }) => {
       }
       return createUserSession(
         newUser.email,
-        `/members/${newUser?.idNumber}/dashboard`
+        `/members/${newUser?.socialNumber}`
       );
   }
 };
 
+export let loader: LoaderFunction = async ({ request }) => {
+  return json({
+    i18n: await i18n.getTranslations(request, ["common"]),
+  });
+};
+
 export default function Login() {
   let actionData = useActionData<ActionData | undefined>();
-  let [searchParams] = useSearchParams();
+  let { t } = useTranslation("common");
+
   return (
     <div className="p-12 max-w-md w-full mx-auto" dir="rtl">
-      <h1 className="text-xl text-center text-white">
-        כניסה למערכת ניהול פרוייקט Meditav
-      </h1>
+      <h1 className="text-xl text-center text-white">{t("login.title")}</h1>
       <div className="flex w-full flex-col justify-center items-center">
         <div className="w-full max-w-md px-2 py-16 sm:px-0">
           <Tab.Group
@@ -142,7 +142,7 @@ export default function Login() {
                   )
                 }
               >
-                התחבר
+                {t("login")}
               </Tab>
               <Tab
                 className={({ selected }) =>
@@ -155,7 +155,7 @@ export default function Login() {
                   )
                 }
               >
-                הירשם
+                {t("register")}
               </Tab>
             </Tab.List>
             <Tab.Panels className="mt-2">
@@ -169,13 +169,13 @@ export default function Login() {
                   <input hidden name="loginType" value="login" />
                   <input
                     className="bg-gray-100 rounded-xl border-none text-gray-400 w-full h-10"
-                    placeholder="דואר אלקטרוני"
+                    placeholder={t("email")}
                     type="text"
                     name="email"
                   />
                   <input
                     className="bg-gray-100 rounded-xl border-none text-gray-400 w-full h-10"
-                    placeholder="סיסמה"
+                    placeholder={t("password")}
                     type="password"
                     name="password"
                   />
@@ -186,7 +186,7 @@ export default function Login() {
                     type="submit"
                     className="block text-blue-800 text-center w-full bg-blue-400 h-10 rounded-xl"
                   >
-                    התחבר
+                    {t("login")}
                   </button>
                 </Form>
               </Tab.Panel>
@@ -200,7 +200,7 @@ export default function Login() {
                   <input hidden name="loginType" value="register" />
                   <input
                     className="bg-gray-100 rounded-xl border-none text-gray-400 w-full h-10"
-                    placeholder="שם מלא"
+                    placeholder={t("fullName")}
                     defaultValue={actionData?.fields?.name}
                     required
                     type="text"
@@ -208,7 +208,7 @@ export default function Login() {
                   />
                   <input
                     className="bg-gray-100 rounded-xl border-none text-gray-400 w-full h-10"
-                    placeholder="אימייל"
+                    placeholder={t("email")}
                     defaultValue={actionData?.fields?.email}
                     required
                     type="email"
@@ -221,7 +221,7 @@ export default function Login() {
                   )}
                   <input
                     className="bg-gray-100 rounded-xl border-none text-gray-400 w-full h-10"
-                    placeholder="טלפון"
+                    placeholder={t("phone")}
                     defaultValue={actionData?.fields?.phone}
                     required
                     type="tel"
@@ -229,27 +229,22 @@ export default function Login() {
                   />
                   <input
                     className="bg-gray-100 rounded-xl border-none text-gray-400 w-full h-10"
-                    placeholder="תעודת זהות"
-                    defaultValue={actionData?.fields?.idNumber}
+                    placeholder={t("socialNumber")}
+                    defaultValue={actionData?.fields?.socialNumber}
                     required
                     type="text"
-                    name="idNumber"
+                    name="socialNumber"
                   />
                   <input
                     className="bg-gray-100 rounded-xl border-none text-gray-400 w-full h-10"
-                    placeholder="שם משתמש"
+                    placeholder={t("username")}
                     defaultValue={actionData?.fields?.username}
                     type="text"
                     name="username"
                   />
-                  {actionData?.fieldErrors?.username && (
-                    <ValidationMessage
-                      message={actionData.fieldErrors.username}
-                    />
-                  )}
                   <input
                     className="bg-gray-100 rounded-xl border-none text-gray-400 w-full h-10"
-                    placeholder="סיסמה"
+                    placeholder={t("password")}
                     defaultValue={actionData?.fields?.password}
                     type="password"
                     name="password"
@@ -263,7 +258,7 @@ export default function Login() {
                     type="submit"
                     className="block text-blue-800 text-center w-full bg-blue-500 h-10 rounded-xl"
                   >
-                    הירשם
+                    {t("register")}
                   </button>
                 </Form>
               </Tab.Panel>

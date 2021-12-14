@@ -61,5 +61,48 @@ npm run dev
 
 > **Importent:** when you working with the database the vpn is active or you will get errors that you can't reach the database.
 
-
-
+### Web Application Routes
+```jsx
+<Routes>
+  <Route file="root.tsx">
+    <Route path="members/:idNumber/dashboard" file="routes\\members\\$idNumber\\dashboard.tsx">
+      <Route path="supervisor" file="routes\\members\\$idNumber\\dashboard\\supervisor.tsx">
+        <Route path="classes" file="routes\\members\\$idNumber\\dashboard\\supervisor\\classes.tsx" />
+        <Route path="reports" file="routes\\members\\$idNumber\\dashboard\\supervisor\\reports.tsx" />
+        <Route path="orders" file="routes\\members\\$idNumber\\dashboard\\supervisor\\orders.tsx" />
+      </Route>
+      <Route path="console" file="routes\\members\\$idNumber\\dashboard\\console.tsx" />
+      <Route path="schools" file="routes\\members\\$idNumber\\dashboard\\schools.tsx" />
+      <Route path="orders" file="routes\\members\\$idNumber\\dashboard\\orders.tsx" />
+      <Route index file="routes\\members\\$idNumber\\dashboard\\index.tsx" />
+      <Route path="tasks" file="routes\\members\\$idNumber\\dashboard\\tasks.tsx" />
+      <Route path="teams" file="routes\\members\\$idNumber\\dashboard\\teams.tsx" />
+      <Route path="info" file="routes\\members\\$idNumber\\dashboard\\info.tsx" />
+      <Route path="add" file="routes\\members\\$idNumber\\dashboard\\add.tsx">
+        <Route path="school" file="routes\\members\\$idNumber\\dashboard\\add\\school.tsx" />
+      </Route>
+    </Route>
+    <Route path="actions/filterOrders" file="routes\\actions\\filterOrders.tsx" />
+    <Route path="members/:idNumber/me" file="routes\\members\\$idNumber\\me.tsx" />
+    <Route path="actions/addSchool" file="routes\\actions\\addSchool.tsx" />
+    <Route path="actions/addUser" file="routes\\actions\\addUser.tsx" />
+    <Route path="demos/actions" file="routes\\demos\\actions.tsx" />
+    <Route path="demos/correct" file="routes\\demos\\correct.tsx" />
+    <Route path="demos/params" file="routes\\demos\\params.tsx">
+      <Route index file="routes\\demos\\params\\index.tsx" />
+      <Route path=":id" file="routes\\demos\\params\\$id.tsx" />
+    </Route>
+    <Route path="demos/about" file="routes\\demos\\about.tsx">
+      <Route index file="routes\\demos\\about\\index.tsx" />
+      <Route path="whoa" file="routes\\demos\\about\\whoa.tsx" />
+    </Route>
+    <Route path="logout" file="routes\\logout.tsx" />
+    <Route path="admin" file="routes\\admin.tsx">
+      <Route path="orders" file="routes\\admin\\orders.tsx" />
+      <Route path="teams" file="routes\\admin\\teams.tsx" />
+    </Route>
+    <Route index file="routes\\index.tsx" />
+    <Route path="login" file="routes\\login.tsx" />
+  </Route>
+</Routes>
+```

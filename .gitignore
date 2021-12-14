@@ -6,3 +6,9 @@ node_modules
 /prisma/dev.db
 .env
 /app/.tailwind.css
+app/routes/api
+/app/models/
+app/routes/members
+app/routes/actions
+passHash.js
+prisma/migration

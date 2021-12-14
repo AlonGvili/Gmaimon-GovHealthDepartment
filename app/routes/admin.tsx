@@ -1,69 +1,81 @@
-import type { LoaderFunction } from "remix";
-import { useLoaderData, Link } from "remix";
-import { db } from "~/utils/db.server";
-import Tabs from "~/components/Tabs";
+import { LoaderFunction } from "remix";
+import { useLoaderData, json, Outlet } from "remix";
 import { getUser } from "~/utils/session.server";
-import { Outlet } from "react-router";
+import { i18n } from "~/utils/i18n.server"; // this is the first file you created
+import SideBar from "~/components/sidebar";
+import ButtonLogout from "~/components/button.logout";
+import User from "~/components/user";
+import {
+  RiBuildingLine,
+  RiCalendarTodoFill as RiCalendarFill,
+  RiCpuLine,
+  RiListCheck2,
+  RiLogoutCircleRLine,
+  RiUserLine,
+} from "react-icons/ri";
+import logo from "~/assets/logo.png";
+import NavBarLink from "~/components/NavBarLink";
+import { Drawer } from "~/components/drawer";
+import { ModalsProvider } from "@mantine/modals";
+import { NotificationsProvider } from "@mantine/notifications";
+
+export { CatchBoundary, ErrorBoundary } from "~/utils";
 
 export let loader: LoaderFunction = async ({ request }) => {
   let user = await getUser(request);
-  // let superuser = await db.supervisor.findFirst({
-  //   where: { email: user?.email },
-  //   include: {
-  //     supervisors: {
-  //       include: {
-  //         order: true
-  //       }
-  //     }
-  //   }
-  // })
-  // let superuser = await db.order.findFirst({
-  //   where: {
-  //     supervisors: {
-  //       some: {
-  //         supervisor: {
-  //           name: user?.name,
-  //         },
-  //       },
-  //     },
-  //   },
-  //   include: {
-  //     supervisors: true,
-  //   },
-  // });
-  return { user };
+  return json({
+    i18n: await i18n.getTranslations(request, ["common"]),
+    user,
+  });
 };
 
-export default function SupervisorPage() {
+export default function Admin() {
   let data = useLoaderData();
   return (
-    <div className="p-12">
-      <div className="bg-white sm:rounded-lg w-full px-2 sm:px-0 flex justify-between items-center">
-        <div className="px-4 py-5 sm:px-6 flex-1">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            שלום, {data.user?.name}
-          </h3>
-          <p className="mt-1 max-w-2xl text-sm text-gray-500">מנהל המערכת</p>
+    <ModalsProvider>
+      <NotificationsProvider position="top-center" zIndex={2077}>
+        <div className="relative flex h-screen w-screen">
+          <SideBar className="bg-white flex flex-col justify-evenly w-64 px-8 py-12">
+            <img src={logo} className="w-24 mb-32 object-contain self-center" />
+            <div className="h-full">
+              <NavBarLink
+                to="/admin/orders"
+                icon={RiCalendarFill}
+                label="orders"
+              />
+              <NavBarLink to="/admin/tasks" icon={RiListCheck2} label="tasks" />
+              <NavBarLink
+                to="/admin/schools"
+                icon={RiBuildingLine}
+                label="schools"
+              />
+              <NavBarLink
+                to="/admin/devices"
+                icon={RiCpuLine}
+                label="devices"
+              />
+              <NavBarLink
+                to="/admin/members"
+                icon={RiUserLine}
+                label="members"
+              />
+            </div>
+            <div>
+              <User user={data.user} className="w-full mb-6" />
+              <ButtonLogout
+                icon={RiLogoutCircleRLine}
+                className="text-gray-500"
+                children="logout"
+              />
+            </div>
+          </SideBar>
+          <div className="flex flex-col p-6 h-full w-full">
+            <Drawer>
+              <Outlet />
+            </Drawer>
+          </div>
         </div>
-        <div className="flex items-center justify-between max-w-md flex-1 px-4 py-5 sm:px-6">
-          <Link to="orders">
-            <div className="text-gray-800 font-semibold text-md">הזמנות</div>
-          </Link>
-          <Link to="supervisors">
-            <div className="text-gray-800 font-semibold text-md">מפקחים</div>
-          </Link>
-          <Link to="teams">
-            <div className="text-gray-800 font-semibold text-md">צוותים</div>
-          </Link>
-          <Link to="schools">
-            <div className="text-gray-800 font-semibold text-md">מוסדות</div>
-          </Link>
-          <Link to="users">
-            <div className="text-gray-800 font-semibold text-md">עובדים</div>
-          </Link>
-        </div>
-      </div>
-      <Outlet />
-    </div>
+      </NotificationsProvider>
+    </ModalsProvider>
   );
 }

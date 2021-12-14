@@ -13,69 +13,20 @@ import {
   TableBodyProps,
   TableCommonProps,
   usePagination,
+  useFlexLayout,
 } from "react-table";
 import { TFunction } from "react-i18next";
-import { HiChevronDown, HiChevronUp } from "react-icons/hi";
-import { TicketWithTask } from "./OrderBlade";
-import React from "react";
-import { useFetcher } from "remix";
-import { useDrawer } from "./drawer";
+import {
+  HiChevronDown,
+  HiChevronUp,
+  HiChevronLeft,
+  HiChevronRight,
+} from "react-icons/hi";
 import { Row } from "react-table";
-import { usePaginationFetcher } from "~/utils";
-import Pagination from "./table/pagination";
-
-const IndeterminateCheckbox = React.forwardRef<TicketWithTask>(
-  ({ indeterminate, ...rest }, ref) => {
-    const defaultRef = React.useRef();
-    const resolvedRef = ref || defaultRef;
-
-    React.useEffect(() => {
-      resolvedRef.current.indeterminate = indeterminate;
-    }, [resolvedRef, indeterminate]);
-
-    return (
-      <input
-        {...rest}
-        type="checkbox"
-        ref={resolvedRef}
-        className="rounded text-brand border border-coolGray-300 focus:outline-none focus:ring-0"
-      />
-    );
-  }
-);
-
-const EditableCell = ({
-  value: initialValue,
-  row: { index },
-  column: { id },
-  update, // This is a custom function that we supplied to our table instance
-}) => {
-  // We need to keep and update the state of the cell normally
-  const [value, setValue] = React.useState(initialValue);
-
-  const onChange = (e) => {
-    setValue(e.target.value);
-  };
-
-  // We'll only update the external data when the input is blurred
-  const onBlur = () => {
-    update(index, id, value);
-  };
-
-  // If the initialValue is changed external, sync it up with our state
-  React.useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-
-  return (
-    <input
-      className="text-xs text-coolGray-500 border border-none focus:border-coolGray-200 rounded p-1"
-      value={value}
-      onChange={onChange}
-      onBlur={onBlur}
-    />
-  );
-};
+import { EditableCell } from "./table/EditableCell";
+import { useEffect } from "react";
+import { Button } from "./shared/button";
+import selectColumn from "./table/selectColumn";
 
 // Set our editable cell renderer as the default Cell renderer
 const defaultColumn = {
@@ -94,24 +45,19 @@ export interface RemixTableProps<D> {
   columnProps?: (column: Column<D>) => any;
   dir?: "ltr" | "rtl";
   setSelectedRows?: (rows: Row<D>[]) => void;
-  skipPageResetRef?: React.MutableRefObject<boolean>;
-  fetchData?: (page: number, pageSize: number) => void;
-  pageCount?: number;
 }
 
 export default function Table<D>({
   data = [],
   columns,
+  updateHandle,
+  primaryKey,
   rowProps = (row: Row<D>) => ({ ...row }),
   bodyProps = (body: TableBodyProps<D>) => ({ ...body }),
   cellProps = (cell: Cell<D>) => ({ ...cell }),
   headerProps = (column: Column<D>) => ({ ...column }),
   columnProps = (column: Column<D>) => ({ ...column }),
   setSelectedRows = (values: Row[]) => {},
-  skipPageResetRef,
-  fetchData,
-  loading,
-  pageCount: controlledPageCount,
   ...props
 }: RemixTableProps<D>): JSX.Element {
   const {
@@ -119,76 +65,57 @@ export default function Table<D>({
     getTableBodyProps,
     headerGroups,
     prepareRow,
-    selectedFlatRows,
     page,
+    selectedFlatRows,
     canPreviousPage,
     canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
     nextPage,
     previousPage,
-    setPageSize,
-    state: { pageIndex, pageSize },
   } = useTable(
     {
       columns,
       data,
       defaultColumn,
+      updateHandle,
+      primaryKey,
       initialState: {
-        hiddenColumns: ["מבצע"],
         pageIndex: 0,
       },
-      autoResetPage: !skipPageResetRef,
-      manualPagination: true,
-      pageCount: controlledPageCount,
     },
     useSortBy,
     usePagination,
+    useFlexLayout,
     useRowSelect,
     (hooks) => {
-      hooks.allColumns.push((columns) => [
-        {
-          id: "selection",
-          minWidth: 35,
-          width: 35,
-          maxWidth: 35,
-          Header: ({ getToggleAllRowsSelectedProps }) => (
-            <div>
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-            </div>
-          ),
-          Cell: ({ row: { getToggleRowSelectedProps } }) => (
-            <div>
-              <IndeterminateCheckbox {...getToggleRowSelectedProps()} />
-            </div>
-          ),
-        },
-        ...columns,
-      ]);
+      hooks.allColumns.push((columns) => [selectColumn(), ...columns]);
     }
   );
 
-  React.useEffect(() => {
-    fetchData({ pageIndex, pageSize });
-  }, [fetchData, pageIndex, pageSize]);
-
-  React.useEffect(() => {
+  // side effect on the table, when selectedFletRows value is change (we select or deselect a row),
+  // the setSelectedRows function invoked, this function comes from the parent component as prop for this component.
+  useEffect(() => {
+    console.log(selectedFlatRows);
     setSelectedRows(selectedFlatRows);
   }, [selectedFlatRows]);
 
   return (
-    <>
-      <table
+    // Table wrapper container
+    <div>
+      {/* The main table component (<table>) */}
+      <div
         {...props}
         {...getTableProps()}
-        className="table-auto w-full bg-white"
+        className="table-auto w-full bg-white h-full"
       >
-        <thead className="bg-gray-50">
+        <div className="bg-gray-50">
+          {/* Table headers from here down */}
           {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
+            // The row that holds table headers ( <tr /> )
+            <div {...headerGroup.getHeaderGroupProps()}>
+              {/* loop for all the columns */}
               {headerGroup.headers.map((column) => (
-                <th
+                // table columns
+                <div
                   scope="col"
                   {...column.getHeaderProps([
                     headerProps(),
@@ -196,8 +123,10 @@ export default function Table<D>({
                     column.getSortByToggleProps(),
                   ])}
                 >
+                  {/* table column header renderer */}
                   <div className="flex w-full justify-between items-center">
                     {column.render("Header")}
+                    {/* render the sort column header with the correct icon for sorting  */}
                     <span>
                       {column.isSorted ? (
                         column.isSortedDesc ? (
@@ -208,49 +137,48 @@ export default function Table<D>({
                       ) : null}
                     </span>
                   </div>
-                </th>
+                </div>
               ))}
-            </tr>
+            </div>
           ))}
-        </thead>
-        <tbody {...getTableBodyProps([bodyProps()])}>
+        </div>
+        {/* Table body section, from here down we render the rows */}
+        <div {...getTableBodyProps(bodyProps())}>
           {page.map((row, i) => {
+            // loop for rows
             prepareRow(row);
             return (
-              <tr {...row.getRowProps([rowProps()])}>
+              // render the row
+              <div {...row.getRowProps(rowProps())}>
                 {row.cells.map((cell) => {
+                  // loop for cells in a row
                   return (
-                    <td {...cell.getCellProps([columnProps()])}>
+                    // render the cell with data
+                    <div {...cell.getCellProps(columnProps())}>
                       {cell.render("Cell")}
-                    </td>
+                    </div>
                   );
                 })}
-              </tr>
+              </div>
             );
           })}
-        </tbody>
-        {loading ? (
-          // Use our custom loading state to show a loading indicator
-          <td colSpan="10000">Loading...</td>
-        ) : (
-          <td colSpan="10000">
-            Showing {page.length} of ~{controlledPageCount * pageSize} results
-          </td>
+        </div>
+      </div>
+      {/* Table pagination ( next/previous ) */}
+      <div dir="rtl" className="p-6 w-full flex justify-start">
+        {canPreviousPage && (
+          <Button onClick={() => previousPage()} disabled={!canPreviousPage}>
+            <span className="sr-only">Previous</span>
+            <HiChevronRight aria-hidden="true" />
+          </Button>
         )}
-      </table>
-      <Pagination
-        previousPage={previousPage}
-        setPageSize={setPageSize}
-        canNextPage={canNextPage}
-        canPreviousPage={canPreviousPage}
-        gotoPage={gotoPage}
-        nextPage={nextPage}
-        pageSize={10}
-        pageCount={pageCount}
-        pageOptions={pageOptions}
-        page={page}
-        pageIndex={pageIndex}
-      />
-    </>
+        {canNextPage && (
+          <Button onClick={() => nextPage()} disabled={!canNextPage}>
+            <span className="sr-only">Previous</span>
+            <HiChevronLeft aria-hidden="true" />
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }

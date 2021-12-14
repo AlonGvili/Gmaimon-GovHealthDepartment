@@ -39,7 +39,7 @@ async function main() {
         phone: "0521234567",
         username: "demo_teamleader",
         passwordHash: await bcrypt.hash("teamleader123", 10),
-        role: "TEAMLEADER",
+        role: "SUPERVISOR",
       },
       {
         name: "דמו משתמש רגיל",
@@ -50,31 +50,18 @@ async function main() {
         passwordHash: await bcrypt.hash("user123", 10),
         role: "MEMBER",
       },
+      {
+        name: "3 דמו משתמש רגיל",
+        email: "demoוuser3@demo.com",
+        socialNumber: "000000006",
+        phone: "0531111111",
+        username: "demo_user3",
+        passwordHash: await bcrypt.hash("user123", 10),
+        role: "MEMBER",
+      }
     ],
   });
-
-  await db.member.create({
-    data: {
-      name: "3 דמו משתמש רגיל",
-      email: "demoוuser3@demo.com",
-      socialNumber: "000000006",
-      phone: "0531111111",
-      username: "demo_user3",
-      passwordHash: await bcrypt.hash("user123", 10),
-      role: "MEMBER",
-      team: {
-        connectOrCreate: {
-          where: { id: 1 },
-          create: {
-            id: 1,
-          }
-        }
-      }
-    }
-  });
-  // Create a new demo teams
-
-  // Create a new demo supervisor account
+  
 }
 
 main()

@@ -1,7 +1,7 @@
 import React from "react";
 import { useCatch, useTransition, useFetcher } from "remix";
 import { Document } from "~/root";
-import { TicketPaginationResult } from "~/routes/api/orders/pagination";
+import { TicketPaginationResult } from "~/apiorders/pagination";
 
 export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error);

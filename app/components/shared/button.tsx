@@ -21,7 +21,7 @@ export function Button({ children, className = "", ...rest }: ButtonProps) {
     <button
       type="button"
       className={classNames(
-        "relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50",
+        "relative inline-flex items-center px-2 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50",
         className
       )}
       {...rest}
@@ -34,7 +34,7 @@ export function Button({ children, className = "", ...rest }: ButtonProps) {
 export function PageSelect({
   skip,
   page,
-  take
+  take,
 }: {
   take: number;
   skip: number;
@@ -42,7 +42,9 @@ export function PageSelect({
 }) {
   let submit = useSubmit();
   let [searchParams, setSearchParams] = useSearchParams();
-  let [selectValue, setSelectValue] = useState(searchParams.get("take") || take);
+  let [selectValue, setSelectValue] = useState(
+    searchParams.get("take") || take
+  );
 
   useEffect(() => {
     setSelectValue(searchParams.get("take")!);
@@ -51,15 +53,17 @@ export function PageSelect({
   return (
     <Form
       method="get"
-      action={`?page=${page}&take=${Number(searchParams.get("take"))}&skip=${skip}`}
+      action={`?page=${page}&take=${Number(
+        searchParams.get("take")
+      )}&skip=${skip}`}
     >
       <span className="sr-only">Items Per Page</span>
       <select
         name="take"
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+        className="mt-1  rounded-md border-coolgray-200 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
         value={selectValue}
         onChange={(e) => {
-          submit(e.currentTarget.form)
+          submit(e.currentTarget.form);
         }}
       >
         {[5, 10, 20].map((pageSize) => (

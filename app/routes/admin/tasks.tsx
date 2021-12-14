@@ -1,7 +1,6 @@
 import { json, LoaderFunction, Outlet, useLoaderData } from "remix";
-import TasksBlade from "~/components/TaskBlade";
-import { findMany } from "~/routes/api/tasks/findMany";
-import type { TaskReturnType } from "~/routes/api/tasks/delete";
+import { findMany } from "~/api/tasks/read";
+import type { TaskReturnType } from "~/api/tasks/read";
 import { isAuthenticated } from '~/utils/session.server';
 export { CatchBoundary, ErrorBoundary } from "~/utils";
 
@@ -11,7 +10,7 @@ type LoaderData = {
 }
 export let loader: LoaderFunction = async ({request}) => {
   await isAuthenticated(request);
-  let [{count}, {data}] = await findMany({});
+  let [{count}, {data}] = await findMany();
   return json({ count, data });
 };
 

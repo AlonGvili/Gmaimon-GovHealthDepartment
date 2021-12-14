@@ -1,20 +1,32 @@
-import { usePagination } from "react-table";
+import { usePagination } from "@mantine/hooks";
+import React from "react"
+export default function Pagination(
+  {total, initialPage, page, onChange}: Parameters<typeof usePagination>[0]
+) {
+  const pagination = usePagination({ total, initialPage, page });
 
-export default function Pagination(props: Parameters<typeof usePagination>[0]["useOptions"]) {
   return (
-    <div className="navLinks">
-      {console.log(userpage <= 0)}
-      <PageButton disabled={userpage - 1 <= 0} to={`?page=${userpage - 1}`}>
-        <span className="sr-only">Previous</span>
-        <HiChevronRight className="h-5 w-5" aria-hidden="true" />
-      </PageButton>
-      <PageButton
-        to={`?page=${userpage + 1}`}
-        disabled={userpage * take > count}
-      >
-        <span className="sr-only">Next</span>
-        <HiChevronLeft className="h-5 w-5" aria-hidden="true" />
-      </PageButton>
+    <div className="flex max-w-md">
+      {pagination.first}
+      {pagination.range}
+      <button className="p-2 border" onClick={() => pagination.next()}>{`<`}</button>
+      <button className="p-2 border" onClick={() => pagination.previous()}>{'>'}</button>
+      <button className="p-2 border" onClick={onChange}>{'+'}</button>
     </div>
-  );
+  )
+  // pagination.range; // -> [1, 2, 3, 4, 5, 'dots', 10];
+
+  // pagination.setPage(5);
+  // pagination.range; // -> [1, 'dots', 4, 5, 6, 'dots', 10];
+
+  // pagination.next();
+  // pagination.range; // -> [1, 'dots', 5, 6, 7, 'dots', 10];
+
+  // pagination.range; // -> [1, 'dots', 4, 5, 6, 'dots', 10];
+
+  // pagination.last();
+  // pagination.range; // -> [1, 'dots', 6, 7, 8, 9, 10];
+
+  // pagination.first();
+  // pagination.range; // -> [1, 2, 3, 4, 5, 'dots', 10];
 }

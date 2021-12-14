@@ -31,6 +31,11 @@ export async function login({
   if (!user) return { error: "משתמש לא קיים, נא לבצע רישום למערכת" };
   let isCorrectPassword = await bcrypt.compare(password, user.passwordHash);
   if (!isCorrectPassword) return { error: "סיסמה שגויה" };
+  if(user.role === "ADMIN"){
+    let session = await storage.getSession()
+    session.set("user-role", "admin")
+    storage.commitSession(session)
+  }
   return { user };
 }
 
@@ -80,6 +85,12 @@ export async function requireUserId(
 export async function isAuthenticated(request: Request) {
   let userId = await requireUserId(request);
   return Boolean(userId);
+}
+
+export async function isAdmin(request: Request) {
+  let session = await storage.getSession(request.headers.get("Cookie"));
+  let userRole = session.get("user-role")
+  return userRole === "admin"
 }
 
 export async function getUser(request: Request) {

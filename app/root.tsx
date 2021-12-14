@@ -13,9 +13,10 @@ import type { LoaderFunction, LinksFunction } from "remix";
 import styles from "./styles/app.css";
 import { useRemixI18Next } from "remix-i18next";
 import { i18n } from "./utils/i18n.server";
-import { getUser, isAuthenticated } from "./utils/session.server";
+import { getUser, isAuthenticated, requireUserId } from "./utils/session.server";
 import { MantineProvider } from "@mantine/core";
 import stylisRTLPlugin from "stylis-plugin-rtl";
+import { getUserId } from '~/utils/session.server';
 export { CatchBoundary, ErrorBoundary } from "~/utils";
 
 export let links: LinksFunction = () => {

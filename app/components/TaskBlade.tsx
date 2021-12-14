@@ -4,6 +4,7 @@ import { Column, Row } from "react-table";
 import { Task } from ".prisma/client";
 import Table from "~/components/Table";
 import { Link, useLocation } from "remix";
+import dayjs from "dayjs";
 
 interface UseTaskColumnsProps {
   translationFn: TFunction;
@@ -13,8 +14,8 @@ type TaskColumns = Array<Column<Task>>;
 
 export function normalizeDate(date: string | null | undefined) {
   if (!date) return "";
-  const d = new Date(date);
-  return d.toLocaleDateString();
+  const d = dayjs(date).locale('he').format('DD/MM/YY');
+  return d;
 }
 
 export const useTaskColumns = ({ translationFn }: UseTaskColumnsProps) => {

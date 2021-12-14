@@ -2,22 +2,24 @@ import {
   RiCalendarFill,
   RiListCheck2,
   RiBuildingLine,
-  RiCpuLine,
-  RiUserLine,
   RiLogoutCircleRLine,
 } from "react-icons/ri";
-import { json, LoaderFunction, Outlet, useLoaderData } from "remix";
+import { json, LoaderFunction, Outlet, useLoaderData, redirect } from "remix";
 import ButtonLogout from "~/components/button.logout";
 import NavBarLink from "~/components/NavBarLink";
 import SideBar from "~/components/sidebar";
 import User from "~/components/user";
 import logo from "~/assets/logo.png";
 import { i18n } from "~/utils/i18n.server";
-import { getUser } from "~/utils/session.server";
+import { requireUserId } from "~/utils/session.server";
 
 export { CatchBoundary, ErrorBoundary } from "~/utils";
 export let loader: LoaderFunction = async ({ request }) => {
-  let user = await getUser(request);
+  let user = await requireUserId(request);
+  console.log(user);
+  if (!user) {
+    return null;
+  }
   return json({
     i18n: await i18n.getTranslations(request, ["common"]),
     user,
@@ -31,17 +33,17 @@ export default function Index() {
         <img src={logo} className="w-24 mb-32 object-contain self-center" />
         <div className="h-full">
           <NavBarLink
-            to={`/member/${data.user.socialNumber}/orders`}
+            to={`/members/${data.user.socialNumber}/orders`}
             icon={RiCalendarFill}
             label="orders"
           />
           <NavBarLink
-            to={`/member/${data.user.socialNumber}/tasks`}
+            to={`/members/${data.user.socialNumber}/tasks`}
             icon={RiListCheck2}
             label="tasks"
           />
           <NavBarLink
-            to={`/member/${data.user.socialNumber}/schools`}
+            to={`/members/${data.user.socialNumber}/schools`}
             icon={RiBuildingLine}
             label="schools"
           />

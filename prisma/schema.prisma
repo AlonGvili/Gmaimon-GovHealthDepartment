@@ -62,10 +62,10 @@ model Member {
   deletedTask      DeletedTask[]
   deletedSchool    DeletedSchool[]
   School           School?         @relation("SchoolSupervisor")
-  deletedMember    Member?         @relation("DeletedBy")
-  deleterId        Int?            @unique
-  deleter          Member?         @relation("DeletedBy", fields: [deleterId], references: [id])
-
+  deletedMember    Member[]        @relation("DeletedBy")
+  deleterId        Int?
+  deleter          Member[]        @relation("DeletedBy", fields: [deleterId], references: [id])
+  deletedDevices   DeletedDevice[]
 }
 
 model Task {
@@ -87,25 +87,24 @@ model Task {
   deviceLocation           String?
   approvedByMember         Boolean       @default(false)
   approvedByMemberDate     DateTime?
-  approvedByLeader         Boolean       @default(false)
-  approvedByLeaderDate     DateTime?
   approvedBySupervisor     Boolean       @default(false)
   approvedBySupervisorDate DateTime?
   approvedByAdmin          Boolean       @default(false)
   approvedByAdminDate      DateTime?
   memberSignature          String?
-  leaderSignature          String?
   supervisorSignature      String?
   adminSignature           String?
 }
 
 model Device {
-  id           Int    @id @default(autoincrement())
-  serialNumber String
-  room         Room?  @relation(fields: [roomId], references: [id])
+  id           Int             @id @default(autoincrement())
+  serialNumber String          @unique
+  room         Room?           @relation(fields: [roomId], references: [id])
   roomId       Int?
-  task         Task?  @relation(fields: [taskId], references: [id])
+  task         Task?           @relation(fields: [taskId], references: [id])
   taskId       Int?
+  status       DeviceStatus    @default(ININVENTORY)
+  deleter      DeletedDevice[]
 }
 
 model Order {
@@ -113,7 +112,7 @@ model Order {
   uid              String         @unique @default(uuid())
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
-  delivaryDate     String?
+  delivaryDate     DateTime?      @db.Date
   schoolName       String?
   address          String?
   trackingNumber   String?
@@ -169,6 +168,15 @@ model DeletedSchool {
   createdAt DateTime @default(now())
 }
 
+model DeletedDevice {
+  id        Int      @id @default(autoincrement())
+  deviceId  String?
+  device    Device?  @relation(fields: [deviceId], references: [serialNumber], onDelete: NoAction)
+  deleterId String
+  deleter   Member?  @relation(fields: [deleterId], references: [socialNumber], onDelete: NoAction)
+  createdAt DateTime @default(now())
+}
+
 enum SchoolType {
   KINDERGARDEN
   YESODI
@@ -178,9 +186,15 @@ enum SchoolType {
 
 enum Role {
   SUPERVISOR
-  TEAMLEADER
   MEMBER
   ADMIN
+}
+
+enum DeviceStatus {
+  INSTALLED
+  ININVENTORY
+  DEFECTS
+  BROKEN
 }
 
 enum TaskStatus {

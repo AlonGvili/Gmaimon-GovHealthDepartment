@@ -4,8 +4,8 @@ import { Column, Row } from "react-table";
 import { Prisma, Ticket } from ".prisma/client";
 import { Link, useFetcher } from "remix";
 import StatusTag from "./statusTag";
-import TableWrapper from "~/components/table/table";
-import { TicketPaginationResult } from "~/routes/api/orders/pagination";
+import TableWrapper from "~/components/table/toolbar";
+import { TicketPaginationResult } from "~/apiorders/pagination";
 import { usePaginationData } from "~/utils";
 import Table from "./Table";
 

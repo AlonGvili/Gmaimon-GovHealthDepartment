@@ -1,3 +1,4 @@
+import { injectStylesIntoStaticMarkup } from "@mantine/ssr";
 import i18next from "i18next";
 import { renderToString } from "react-dom/server";
 import { initReactI18next } from "react-i18next";
@@ -27,7 +28,7 @@ export default async function handleRequest(
 
   responseHeaders.set("Content-Type", "text/html");
   
-  return new Response("<!DOCTYPE html>" + markup, {
+  return new Response("<!DOCTYPE html>" + injectStylesIntoStaticMarkup(markup), {
     status: responseStatusCode,
     headers: responseHeaders,
   });

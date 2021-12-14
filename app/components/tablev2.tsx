@@ -1,6 +1,6 @@
 import { Ticket } from "@prisma/client";
 import { LoaderFunction, useLoaderData, json, Link } from "remix";
-import { page as getOrders } from "~/routes/api/orders/pagination";
+import { page as getOrders } from "~/apiorders/pagination";
 import { ButtonProps } from "./shared/button";
 import { classNames } from "./shared/utils";
 import { HiChevronLeft } from "react-icons/hi";

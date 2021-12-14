@@ -12,6 +12,7 @@ import { useFetcher } from "remix";
 import { useTranslation } from "react-i18next";
 import { DatePicker } from '@mantine/dates';
 import 'dayjs/locale/he';
+import 'dayjs/plugin/localizedFormat';
 
 type PropsGetter<Type> = {
   [Property in keyof Type]: Type[Property];
@@ -19,7 +20,7 @@ type PropsGetter<Type> = {
 
 type FormProps<T> = {
   wrapperProps?: PaperProps<"div">;
-  className: string;
+  className?: string;
 } & ReturnType<typeof useFetcher>;
 
 export function Form<T>({ wrapperProps, className, ...props }: FormProps<T>) {
@@ -53,7 +54,7 @@ export function Form<T>({ wrapperProps, className, ...props }: FormProps<T>) {
               placeholder={t("delivaryDate")}
               name="delivaryDate"
               locale="he"
-              size="md"
+              size="xs"
               firstDayOfWeek="sunday"
               dir="rtl"
               fullWidth

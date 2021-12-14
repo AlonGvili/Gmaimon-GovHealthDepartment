@@ -71,8 +71,8 @@ const DrawerDescription: FunctionComponent<
 };
 
 const DrawerButton: FunctionComponent<
-  ButtonHTMLAttributes<HTMLButtonElement>
-> = ({ children, ...props }) => {
+  ButtonHTMLAttributes<HTMLButtonElement> & {label?: string}
+> = ({ children, label, ...props }) => {
   let { t: translationFn } = useTranslation();
   let { onOpen } = React.useContext(Context);
   return (
@@ -81,7 +81,7 @@ const DrawerButton: FunctionComponent<
       {...props}
       onClick={() => onOpen()}
     >
-      {translationFn(`${children}`)}
+      {children || translationFn(`${label}`)}
     </button>
   );
 };

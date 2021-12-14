@@ -11,8 +11,8 @@ declare global {
 // create a new connection to the DB with every change either.
 if (process.env.NODE_ENV === "production") {
   db = new PrismaClient({log: [
-    { level: 'warn', emit: 'event' },
-    { level: 'info', emit: 'event' },
+    { level: 'warn', emit: 'stdout' },
+    { level: 'info', emit: 'stdout' },
     { level: 'error', emit: 'event' },
   ]});
 
@@ -34,25 +34,6 @@ if (process.env.NODE_ENV === "production") {
   }
   db = global.__db;
   
-  db.$use(async (params, next) => {
-    
-    const before = Date.now();
-
-    const result = await next(params);
-
-    const after = Date.now();
-
-    console.log(
-      `Query ${params.model}.${params.action} took ${after - before}ms`,
-      `\n\t${params[0]}`,
-    );
-
-    return result;
-  });
-
-
-  
-
 }
 
 export { db };

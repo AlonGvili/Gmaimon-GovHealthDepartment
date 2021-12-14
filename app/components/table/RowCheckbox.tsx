@@ -1,7 +1,6 @@
 import React from "react";
-import { TicketWithTask } from "~/components/OrderBlade";
 
-const RowCheckbox = React.forwardRef<TicketWithTask>(
+const RowCheckbox = React.forwardRef(
   ({ indeterminate, ...rest }, ref) => {
     const defaultRef = React.useRef();
     const resolvedRef = ref || defaultRef;
@@ -15,7 +14,8 @@ const RowCheckbox = React.forwardRef<TicketWithTask>(
         {...rest}
         type="checkbox"
         ref={resolvedRef}
-        className="rounded text-brand border border-coolGray-300 focus:outline-none focus:ring-0" />
+        className="rounded text-emerald-500 border border-coolGray-300 focus:outline-none focus:ring-0" />
     );
   }
 );
+export {RowCheckbox}

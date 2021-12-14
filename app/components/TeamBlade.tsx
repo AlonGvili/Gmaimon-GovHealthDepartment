@@ -18,7 +18,7 @@ const useTeamColumns = ({ translationFn }: UseTeamColumnsProps) =>
       {
         Header: translationFn("name") as string,
         accessor: "name",
-        Cell: ({ value, row }: { value: string; row: Row }) => (
+        Cell: ({ value, row }: { value: string; row: Row<Member> }) => (
           <Link
             to={`../${row.original?.socialNumber}`}
             className="whitespace-nowrap text-xm text-blue-500 font-medium"

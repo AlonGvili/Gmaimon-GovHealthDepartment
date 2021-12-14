@@ -6,7 +6,8 @@ import { createUserSession, login, register } from "~/utils/session.server";
 import ValidationMessage from "../components/ValidationMessage";
 import { i18n } from "~/utils/i18n.server"; // this is the first file you created
 import { useTranslation } from "react-i18next";
-export {CatchBoundary, ErrorBoundary} from '~/utils'
+import { getUserSession } from "../utils/session.server";
+export { CatchBoundary, ErrorBoundary } from "~/utils";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -53,6 +54,19 @@ export let action: ActionFunction = async ({ request }) => {
         };
       }
       if (user) {
+        let session = await getUserSession(request);
+        if (user.role === "ADMIN") {
+          session.set("user-role", "admin");
+          session.set("user-sn", user.socialNumber);
+        }
+        if (user.role === "SUPERVISOR") {
+          session.set("user-role", "supervisor");
+          session.set("user-sn", user.socialNumber);
+        }
+        if (user.role === "MEMBER") {
+          session.set("user-role", "member");
+          session.set("user-sn", user.socialNumber);
+        }
         return createUserSession(
           user.email,
           user.role === "ADMIN" ? `admin` : `/`

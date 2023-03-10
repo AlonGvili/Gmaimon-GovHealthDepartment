@@ -24,7 +24,7 @@
     "@mantine/modals": "^3.3.5",
     "@mantine/notifications": "^3.3.5",
     "@mantine/prism": "^3.3.5",
-    "@mantine/ssr": "^3.3.5",
+    "@mantine/ssr": "^6.0.1",
     "@prisma/client": "^3.6.0",
     "@reach/dialog": "^0.18.0",
     "@remix-run/react": "^1.0.6",

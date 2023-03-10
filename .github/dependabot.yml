@@ -7,22 +7,4 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    # Update the npm manifest file to relax
-    # the version requirements
     versioning-strategy: widen
-
-  - package-ecosystem: "composer"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    # Increase the version requirements for Composer
-    # only when required
-    versioning-strategy: increase-if-necessary
-
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    # Only allow updates to the lockfile for pip and
-    # ignore any version updates that affect the manifest
-    versioning-strategy: lockfile-only

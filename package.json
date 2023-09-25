@@ -21,7 +21,7 @@
     "@mantine/core": "^3.3.5",
     "@mantine/dates": "^3.3.5",
     "@mantine/hooks": "^6.0.21",
-    "@mantine/modals": "^3.3.5",
+    "@mantine/modals": "^7.0.1",
     "@mantine/notifications": "^3.3.5",
     "@mantine/prism": "^3.3.5",
     "@mantine/ssr": "^6.0.1",

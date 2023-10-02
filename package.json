@@ -19,7 +19,7 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@mantine/core": "^7.0.1",
-    "@mantine/dates": "^3.3.5",
+    "@mantine/dates": "^7.1.2",
     "@mantine/hooks": "^6.0.21",
     "@mantine/modals": "^3.3.5",
     "@mantine/notifications": "^7.0.1",

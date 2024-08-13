@@ -64,7 +64,7 @@ model Member {
   School           School?         @relation("SchoolSupervisor")
   deletedMember    Member[]        @relation("DeletedBy")
   deleterId        Int?
-  deleter          Member        @relation("DeletedBy", fields: [deleterId], references: [id])
+  deleter          Member?        @relation("DeletedBy", fields: [deleterId], references: [id])
   deletedDevices   DeletedDevice[]
 }
 

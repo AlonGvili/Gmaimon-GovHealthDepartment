@@ -60,7 +60,7 @@
     "@types/react-table": "^7.7.9",
     "@types/styled-components": "^5.1.17",
     "autoprefixer": "^10.4.0",
-    "concurrently": "^8.0.1",
+    "concurrently": "^9.0.0",
     "postcss": "^8.4.4",
     "postcss-cli": "^11.0.0",
     "prisma": "^5.0.0",

@@ -46,7 +46,7 @@
     "remix": "^2.0.0",
     "remix-auth": "^4.0.0",
     "remix-i18next": "^7.0.0",
-    "remix-utils": "^7.0.2",
+    "remix-utils": "^8.0.0",
     "styled-components": "^6.0.2",
     "stylis": "^4.0.10",
     "stylis-plugin-rtl": "^2.1.1"

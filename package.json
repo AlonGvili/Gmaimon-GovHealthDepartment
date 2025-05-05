@@ -22,7 +22,7 @@
     "@mantine/dates": "^7.1.2",
     "@mantine/hooks": "^7.13.5",
     "@mantine/modals": "^7.1.2",
-    "@mantine/notifications": "^7.0.1",
+    "@mantine/notifications": "^8.0.0",
     "@mantine/prism": "^6.0.21",
     "@mantine/ssr": "^6.0.1",
     "@prisma/client": "^6.0.1",
